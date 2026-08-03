@@ -1,26 +1,1656 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ===========================================================================
+   MechPrep design system — "drafting table"
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+   The ~100 diagrams in this app are drawn in a fixed cool technical palette:
+   ink #334155, applied load #dc2626, reaction/result #1d4ed8, dimensions
+   #64748b, fills #dbeafe / #e2e8f0 / #fee2e2. The chrome is built from the
+   same palette so figures read as native to the page instead of pasted onto
+   it. Accent === the blue the figures use for results. Incorrect === the red
+   they use for applied loads.
+
+   Every colour below is a semantic token. Tailwind's stone/teal/emerald/rose/
+   amber scales are remapped onto these tokens in the @theme block, so the
+   utility classes already scattered through the TSX (text-stone-600,
+   bg-emerald-100, …) pick up the system — and flip with the theme — without
+   touching every component.
+   =========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  --bg: #fbfcfd;
+  /* Superseded by --grid-fine / --grid-major below. A single 32px rule at 2.8%
+     was invisible; the grid is now two weights, like graph paper. Kept declared
+     so nothing that still reads it breaks. */
+  --bg-grid: rgba(15, 23, 42, 0.028);
+  --grid-fine: rgba(15, 23, 42, 0.038);
+  --grid-major: rgba(15, 23, 42, 0.085);
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --surface-sunken: #e9eef4;
+
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --ink-muted: #7c8aa0;
+
+  --accent: #1d4ed8;
+  --accent-hover: #1e40af;
+  --accent-soft: #dbeafe;
+  --accent-ink: #1e3a8a;
+  --on-accent: #ffffff;
+
+  --correct: #047857;
+  --correct-soft: #d1fae5;
+  --correct-ink: #065f46;
+
+  --incorrect: #dc2626;
+  --incorrect-soft: #fee2e2;
+  --incorrect-ink: #991b1b;
+
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --warn-ink: #92400e;
+
+  /* A drawing lives on a sheet. Figure cards stay paper-white in both themes
+     rather than inverting ~100 hardcoded-palette SVGs element by element. */
+  --figure-sheet: #ffffff;
+  --figure-frame: #cbd5e1;
+
+  /* Drawing frame. Derived from existing tokens rather than new hexes, and
+     resolved lazily by var(), so both themes get the right values from the one
+     declaration here. */
+  --frame-ink: var(--line-strong);
+  --frame-tick: var(--ink-muted);
+
+  /* Structural grid. Content aligns to it: --app-w is 30 major squares wide,
+     so the container's edges land exactly on major rules. */
+  --grid-unit: 8px;
+  --grid-major-unit: 40px;
+  --app-w: 75rem;
+
+  --r-sm: 4px;
+  --r: 6px;
+  --r-lg: 8px;
+  --r-pill: 999px;
+
+  --shadow-pop: 0 12px 28px -8px rgba(15, 23, 42, 0.22);
+  --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: dark;
+
+    --bg: #0b1120;
+    --bg-grid: rgba(148, 163, 184, 0.05);
+    --grid-fine: rgba(148, 163, 184, 0.05);
+    --grid-major: rgba(148, 163, 184, 0.11);
+    --surface: #111a2d;
+    --surface-muted: #172033;
+    --surface-sunken: #0e1626;
+
+    --line: #1e293b;
+    --line-strong: #334155;
+
+    --ink: #e2e8f0;
+    --ink-soft: #a3b2c7;
+    --ink-muted: #7d8ca3;
+
+    --accent: #60a5fa;
+    --accent-hover: #93c5fd;
+    --accent-soft: #1e3a5f;
+    --accent-ink: #bfdbfe;
+    --on-accent: #0b1120;
+
+    --correct: #34d399;
+    --correct-soft: #06342a;
+    --correct-ink: #6ee7b7;
+
+    --incorrect: #f87171;
+    --incorrect-soft: #45191b;
+    --incorrect-ink: #fca5a5;
+
+    --warn: #fbbf24;
+    --warn-soft: #422006;
+    --warn-ink: #fcd34d;
+
+    /* slightly off-white so a lit sheet doesn't glare on a dark page */
+    --figure-sheet: #f6f8fa;
+    --figure-frame: #475569;
+
+    --shadow-pop: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+    --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
   }
 }
 
+/* Explicit toggle must win over the media query in BOTH directions. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fbfcfd;
+  --bg-grid: rgba(15, 23, 42, 0.028);
+  --grid-fine: rgba(15, 23, 42, 0.038);
+  --grid-major: rgba(15, 23, 42, 0.085);
+  --surface: #ffffff;
+  --surface-muted: #f1f5f9;
+  --surface-sunken: #e9eef4;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --ink-muted: #7c8aa0;
+  --accent: #1d4ed8;
+  --accent-hover: #1e40af;
+  --accent-soft: #dbeafe;
+  --accent-ink: #1e3a8a;
+  --on-accent: #ffffff;
+  --correct: #047857;
+  --correct-soft: #d1fae5;
+  --correct-ink: #065f46;
+  --incorrect: #dc2626;
+  --incorrect-soft: #fee2e2;
+  --incorrect-ink: #991b1b;
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --warn-ink: #92400e;
+  --figure-sheet: #ffffff;
+  --figure-frame: #cbd5e1;
+  --shadow-pop: 0 12px 28px -8px rgba(15, 23, 42, 0.22);
+  --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b1120;
+  --bg-grid: rgba(148, 163, 184, 0.05);
+  --grid-fine: rgba(148, 163, 184, 0.05);
+  --grid-major: rgba(148, 163, 184, 0.11);
+  --surface: #111a2d;
+  --surface-muted: #172033;
+  --surface-sunken: #0e1626;
+  --line: #1e293b;
+  --line-strong: #334155;
+  --ink: #e2e8f0;
+  --ink-soft: #a3b2c7;
+  --ink-muted: #7d8ca3;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-soft: #1e3a5f;
+  --accent-ink: #bfdbfe;
+  --on-accent: #0b1120;
+  --correct: #34d399;
+  --correct-soft: #06342a;
+  --correct-ink: #6ee7b7;
+  --incorrect: #f87171;
+  --incorrect-soft: #45191b;
+  --incorrect-ink: #fca5a5;
+  --warn: #fbbf24;
+  --warn-soft: #422006;
+  --warn-ink: #fcd34d;
+  --figure-sheet: #f6f8fa;
+  --figure-frame: #475569;
+  --shadow-pop: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+  --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Tailwind theme bridge. `inline` makes utilities emit var(--token) directly,
+   so a class like `text-stone-600` resolves through the token and flips with
+   the theme instead of baking in a fixed hex.
+   --------------------------------------------------------------------------- */
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-ink);
+
+  /* `bg-white` / `text-white` appear at several call sites and are NOT covered
+     by the scale remaps below. Left literal, they paint a white card on the
+     dark page — measured 2.71:1 on body text and 1.02:1 on the MC letter
+     prefixes, i.e. invisible. Bind them to the surface token instead. */
+  --color-white: var(--surface);
+
+  --color-stone-50: var(--surface);
+  --color-stone-100: var(--surface-muted);
+  --color-stone-200: var(--surface-sunken);
+  --color-stone-300: var(--line-strong);
+  --color-stone-400: var(--ink-muted);
+  --color-stone-500: var(--ink-muted);
+  --color-stone-600: var(--ink-soft);
+  --color-stone-700: var(--ink-soft);
+  --color-stone-800: var(--ink);
+  --color-stone-900: var(--ink);
+
+  --color-slate-100: var(--surface-muted);
+  --color-slate-200: var(--line);
+  --color-slate-300: var(--line-strong);
+
+  --color-teal-50: var(--accent-soft);
+  --color-teal-100: var(--accent-soft);
+  --color-teal-700: var(--accent);
+
+  --color-emerald-50: var(--correct-soft);
+  --color-emerald-100: var(--correct-soft);
+  --color-emerald-200: var(--correct);
+  --color-emerald-400: var(--correct);
+  --color-emerald-600: var(--correct);
+  --color-emerald-700: var(--correct);
+  --color-emerald-800: var(--correct-ink);
+
+  --color-rose-50: var(--incorrect-soft);
+  --color-rose-100: var(--incorrect-soft);
+  --color-rose-200: var(--incorrect);
+  --color-rose-300: var(--incorrect);
+  --color-rose-500: var(--incorrect);
+  --color-rose-600: var(--incorrect);
+  --color-rose-700: var(--incorrect-ink);
+  --color-rose-800: var(--incorrect-ink);
+
+  --color-amber-50: var(--warn-soft);
+  --color-amber-100: var(--warn-soft);
+  --color-amber-300: var(--warn);
+  --color-amber-800: var(--warn-ink);
+  --color-amber-900: var(--warn-ink);
+
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+
+  /* Reserve the scrollbar gutter on every page, scrolling or not.
+     Without this, a short page (no scrollbar) is 15px wider than a long one,
+     and because .app-container is centred with margin-inline:auto, the header
+     and all page content jump ~7.5px sideways on navigation. Only affects
+     classic scrollbars — overlay scrollbars reserve nothing and never caused
+     the shift. */
+  scrollbar-gutter: stable;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The signature: graph paper. Two weights — an 8px fine rule and a heavier rule
+   every fifth line — because a single-weight grid at 2.8% read as noise, not as
+   a surface you could measure against.
+
+   It is also STRUCTURAL, not decorative. Both layers are offset so a major rule
+   falls exactly on the viewport centreline; `.app-container` is 75rem = 1200px
+   = 30 major squares, so the content column's left and right edges sit on major
+   rules at every width above 1232px. The grid explains the alignment. */
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background-image:
+    linear-gradient(to right, var(--grid-fine) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-fine) 1px, transparent 1px),
+    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px);
+  background-size:
+    var(--grid-unit) var(--grid-unit),
+    var(--grid-unit) var(--grid-unit),
+    var(--grid-major-unit) var(--grid-major-unit),
+    var(--grid-major-unit) var(--grid-major-unit);
+  background-position:
+    calc(50% + var(--grid-unit) / 2) 0,
+    0 0,
+    calc(50% + var(--grid-major-unit) / 2) 0,
+    0 0;
+}
+
+/* Numbers are typeset, not just printed. */
+.metric-count,
+.progress-dot,
+.mini-stat,
+.meta-line,
+.eq,
+.status-pill,
+table,
+input,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    opacity 140ms ease;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+  border-radius: var(--r-sm);
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Everything below is a COMPONENT class and must live in Tailwind's
+   `components` layer.
+
+   Unlayered CSS beats every layered rule regardless of specificity, so while
+   these classes sat outside a layer they silently outranked all Tailwind
+   utilities: `w-48` on a text input rendered 1116px wide, `w-auto` selects
+   rendered 817px, and `p-0` still painted 22.4px of padding. That is why the
+   bank and Q&A filter rows stacked full-width instead of sitting inline.
+   --------------------------------------------------------------------------- */
+@layer components {
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 80;
+  transform: translateY(-160%);
+  border-radius: var(--r);
+  background: var(--accent);
+  color: var(--on-accent);
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-pop);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* ---------------------------------------------------------------------------
+   Chrome
+   --------------------------------------------------------------------------- */
+/* The header is the top edge of the drawing frame: a hairline, a 3px gutter,
+   then the heavier rule. Same double-rule motif as `.sheet`. */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--frame-ink);
+  box-shadow: 0 -4px 0 0 var(--line) inset;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.app-container {
+  width: min(100% - 2rem, var(--app-w));
+  margin-inline: auto;
+}
+
+.app-nav-shell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding-block: 0.7rem;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* A drafting crosshair / target mark. */
+.brand-icon {
+  position: relative;
+  height: 1.4rem;
+  width: 1.4rem;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--r-pill);
+}
+
+.brand-icon::before,
+.brand-icon::after {
+  position: absolute;
+  content: "";
+  background: var(--accent);
+}
+
+.brand-icon::before {
+  left: 50%;
+  top: -3px;
+  bottom: -3px;
+  width: 1.5px;
+  transform: translateX(-50%);
+}
+
+.brand-icon::after {
+  top: 50%;
+  left: -3px;
+  right: -3px;
+  height: 1.5px;
+  transform: translateY(-50%);
+}
+
+.nav-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  margin-left: auto;
+}
+
+/* Mono, tracked, uppercase: the nav is the first thing a stranger reads, and
+   the mono face is the cheapest signal that this is an instrument. 12px keeps
+   it legible at 4.5:1 on --ink-soft. */
+.nav-link {
+  border-radius: var(--r-sm);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.6rem;
+}
+
+.nav-link:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+/* Driven by the real pathname in PrimaryNav, not a hardcoded data-route
+   attribute that every page set to "roadmap". */
+.nav-link-active {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 650;
+}
+
+/* Count of items due for spaced-repetition review. The one number in the
+   chrome that should pull someone back into the app. */
+.nav-badge {
+  display: inline-grid;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  margin-left: 0.35rem;
+  place-items: center;
+  padding-inline: 0.25rem;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.app-main {
+  width: 100%;
+  max-width: 100%;
+  flex: 1;
+  /* `clip`, not `hidden`: an overflow-x:hidden box is still *programmatically*
+     scrollable, so focusing or scrollIntoView-ing an element inside a wide
+     figure shoves the whole page sideways on a narrow screen. */
+  overflow-x: clip;
+  padding-block: clamp(1.25rem, 2.5vw, 2.25rem) 4rem;
+}
+
+.app-footer {
+  border-top: 1px solid var(--frame-ink);
+  box-shadow: 0 4px 0 -3px var(--line) inset;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  padding-block: 1.25rem;
+}
+
+.footer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Theme toggle (rendered in the header). */
+.theme-toggle {
+  display: inline-grid;
+  height: 2rem;
+  width: 2rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------------------
+   Layout
+   --------------------------------------------------------------------------- */
+.page-stack {
+  display: grid;
+  gap: clamp(1.25rem, 2vw, 2rem);
+}
+
+.narrow-page {
+  width: min(100%, 46rem);
+  margin-inline: auto;
+}
+
+.medium-page {
+  width: min(100%, 54rem);
+  margin-inline: auto;
+}
+
+/* ---------------------------------------------------------------------------
+   Typography
+   --------------------------------------------------------------------------- */
+/* The top of the scale. Hierarchy here spans ~6× (68px display down to 11px
+   mono keys); it previously spanned ~1.5×, which is not a hierarchy. */
+.display-title {
+  color: var(--ink);
+  font-size: clamp(2.35rem, 6vw, 4.25rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+  text-wrap: balance;
+}
+
+.page-title {
+  color: var(--ink);
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.section-title {
+  color: var(--ink);
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.body-copy {
+  max-width: 68ch;
+  color: var(--ink-soft);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.muted {
+  color: var(--ink-muted);
+}
+
+/* Every count, ID, unit, timer and stage number in the app runs through one of
+   the mono classes below. Prose stays in Geist; data does not. */
+.meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   Drafting instruments
+
+   Five primitives carry the whole concept: an annotation header, a drawing
+   sheet with a double rule and corner ticks, a title block, a numeric readout,
+   and a dotted-leader spec row.
+   --------------------------------------------------------------------------- */
+
+/* `01 — FOUNDATIONS ————————————` : a section header as a drawing annotation.
+   The trailing rule is what makes it read as an annotation rather than a
+   heading with a small number stuck on the front. */
+.annot {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.annot::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  min-width: 1rem;
+  background: var(--line-strong);
+}
+
+.annot-num {
+  color: var(--accent);
+}
+
+/* Small uppercase mono key. Replaces the sans "CONTINUE" / "READINESS" labels. */
+.mono-key {
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Inline mono for counts and IDs inside running text or chips. */
+.mono-meta {
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The drawing sheet: outer rule at frame weight, 5px gutter, inner hairline.
+   Corner ticks cross both rules the way trim marks cross a drawing frame.
+   Used with conviction exactly twice — Home's coach sheet and the results
+   screen — plus the lesson's title block. */
+.sheet {
+  position: relative;
+  border: 1px solid var(--frame-ink);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  padding: 5px;
+}
+
+.sheet-body {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.sheet::after {
+  position: absolute;
+  content: "";
+  inset: -1px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--frame-tick), var(--frame-tick)),
+    linear-gradient(var(--frame-tick), var(--frame-tick)),
+    linear-gradient(var(--frame-tick), var(--frame-tick)),
+    linear-gradient(var(--frame-tick), var(--frame-tick)),
+    linear-gradient(var(--frame-tick), var(--frame-tick)),
+    linear-gradient(var(--frame-tick), var(--frame-tick)),
+    linear-gradient(var(--frame-tick), var(--frame-tick)),
+    linear-gradient(var(--frame-tick), var(--frame-tick));
+  background-repeat: no-repeat;
+  background-size:
+    15px 2px, 2px 15px,
+    15px 2px, 2px 15px,
+    15px 2px, 2px 15px,
+    15px 2px, 2px 15px;
+  background-position:
+    left top, left top,
+    right top, right top,
+    left bottom, left bottom,
+    right bottom, right bottom;
+}
+
+/* The title block. Sits on the bottom edge of a sheet the way a drawing's does:
+   mono fields, hairline-divided, key over value. */
+.title-block {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  background: var(--surface-muted);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.title-block-field {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+  border-right: 1px solid var(--line);
+  padding: 0.5rem 0.85rem;
+}
+
+.title-block-field:last-child {
+  border-right: 0;
+}
+
+.title-block-key {
+  color: var(--ink-muted);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.title-block-val {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A quantity, set as a measurement: large mono, tight, unit beneath. */
+.readout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.readout-value {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: clamp(2.1rem, 4.4vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+.readout-lg .readout-value {
+  font-size: clamp(2.9rem, 6.4vw, 4rem);
+  letter-spacing: -0.055em;
+}
+
+.readout-sm .readout-value {
+  font-size: clamp(1.5rem, 3vw, 1.85rem);
+  letter-spacing: -0.03em;
+}
+
+.readout-unit {
+  display: block;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+
+/* Dotted-leader spec row, as in a parts list. */
+.spec-row {
+  display: grid;
+  grid-template-columns: auto minmax(0.75rem, 1fr) auto;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.spec-key {
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.spec-leader {
+  align-self: center;
+  height: 0;
+  border-bottom: 1px dotted var(--line-strong);
+}
+
+.spec-val {
+  color: var(--ink);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Quiet secondary actions. One primary button per screen means everything else
+   has to stop being a button. */
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+}
+
+.link-quiet {
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--line-strong);
+  padding-bottom: 1px;
+}
+
+.link-quiet:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Surfaces — hairlines, not shadows
+   --------------------------------------------------------------------------- */
+.hero-panel,
+.panel,
+.question-panel,
+.mini-stat,
+.topic-card {
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.hero-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  padding: clamp(1.25rem, 3.5vw, 2.25rem);
+}
+
+.hero-copy {
+  position: relative;
+  max-width: 46rem;
+}
+
+.panel {
+  border-radius: var(--r-lg);
+  padding: clamp(1rem, 2.5vw, 1.4rem);
+}
+
+.question-panel {
+  border-radius: var(--r-lg);
+  padding: clamp(1rem, 2.5vw, 1.4rem);
+}
+
+.question-panel-correct {
+  border-color: var(--correct);
+  box-shadow: inset 3px 0 0 var(--correct);
+}
+
+.question-panel-incorrect {
+  border-color: var(--incorrect);
+  box-shadow: inset 3px 0 0 var(--incorrect);
+}
+
+.interactive-card:hover {
+  border-color: var(--line-strong);
+}
+
+.dense-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.topic-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+}
+
+.topic-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-radius: var(--r-lg);
+  padding: 1rem;
+}
+
+.topic-card:hover .card-arrow {
+  transform: translateX(2px);
+}
+
+.card-arrow {
+  display: inline-block;
+  transition: transform 140ms ease;
+}
+
+.stage-marker {
+  display: grid;
+  height: 1.85rem;
+  width: 1.85rem;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.mini-stat {
+  border-radius: var(--r);
+  padding: 0.7rem 0.85rem;
+}
+
+.status-pill {
+  border-radius: var(--r-sm);
+  background: var(--correct-soft);
+  color: var(--correct-ink);
+  padding: 0.1rem 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.soft-callout {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface-muted);
+  padding: 0.85rem 1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Controls
+   --------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  min-height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: var(--r);
+  border: 1px solid transparent;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .btn {
+    min-height: 2.75rem;
+  }
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  border-color: var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--ink-muted);
+  background: var(--surface-muted);
+}
+
+/* `#fff` was hardcoded here. In dark mode --incorrect/--correct are the light
+   end of their ramps, so white-on-red measured 2.77:1. --on-accent flips with
+   the theme (white on light, near-black on dark) and clears 4.5:1 in both. */
+.btn-danger {
+  background: var(--incorrect);
+  color: var(--on-accent);
+}
+
+.btn-success {
+  background: var(--correct);
+  color: var(--on-accent);
+}
+
+.field,
+.select-field,
+.text-field,
+.textarea-field {
+  width: 100%;
+  border-radius: var(--r);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.5rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.field:focus,
+.select-field:focus,
+.text-field:focus,
+.textarea-field:focus {
+  border-color: var(--accent);
+}
+
+.field::placeholder,
+.text-field::placeholder,
+.textarea-field::placeholder {
+  color: var(--ink-muted);
+}
+
+.control-grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 720px) {
+  .control-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.segment {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--ink-soft);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.83rem;
+  font-weight: 550;
+}
+
+.segment:hover {
+  background: var(--surface-muted);
+  color: var(--ink);
+}
+
+.segment-on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 650;
+}
+
+.chip {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-soft);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 550;
+}
+
+.chip-on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 650;
+}
+
+.progress-dot {
+  height: 1.7rem;
+  min-width: 1.7rem;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Lesson reading aids — lessons now run to 10 sections. */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: 2px;
+  pointer-events: none;
+}
+
+.reading-progress-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  background: var(--accent);
+}
+
+.lesson-toc {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.lesson-toc a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  border-radius: var(--r-sm);
+  padding: 0.25rem 0.4rem;
+  color: var(--ink-soft);
+}
+
+.lesson-toc a:hover {
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.lesson-toc-num {
+  min-width: 1.1rem;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.back-to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 45;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-soft);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-pop);
+}
+
+.back-to-top:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Roadmap stage index — 25 topics across 6 stages is a long scroll. */
+.stage-index {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 0.5rem;
+}
+
+.stage-index-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  padding: 0.6rem 0.75rem;
+}
+
+.stage-index-item:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-muted);
+}
+
+.stage-index-num {
+  display: grid;
+  height: 1.5rem;
+  width: 1.5rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 2px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stage-index-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.stage-index-name {
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.stage-index-meta {
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-cta {
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.metric-count {
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+/* ---------------------------------------------------------------------------
+   Quiz answer states — never colour alone
+   --------------------------------------------------------------------------- */
+.answer-option {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Locked options are `aria-disabled`, not `disabled`, so the feedback stays
+   focusable and readable. They must still stop reading as clickable. */
+.answer-option:not(:disabled):not([aria-disabled="true"]):hover {
+  border-color: var(--ink-muted);
+  background: var(--surface-muted);
+}
+
+.answer-option-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-weight: 550;
+}
+
+.answer-option-correct,
+.review-answer-correct {
+  border-color: var(--correct);
+  background: var(--correct-soft);
+  color: var(--correct-ink);
+  font-weight: 550;
+}
+
+.answer-option-incorrect,
+.review-answer-incorrect {
+  border-color: var(--incorrect);
+  background: var(--incorrect-soft);
+  color: var(--incorrect-ink);
+}
+
+.review-answer-correct,
+.review-answer-incorrect {
+  border-width: 1px;
+  border-style: solid;
+  border-radius: var(--r);
+}
+
+/* Redundant, non-colour cue for the two result states. */
+.answer-option-correct::before,
+.review-answer-correct::before {
+  content: "✓ ";
+  font-weight: 700;
+}
+
+.answer-option-incorrect::before,
+.review-answer-incorrect::before {
+  content: "✕ ";
+  font-weight: 700;
+}
+
+.solution-box {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--surface-muted);
+  padding: 0.85rem 1rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Lesson / content prose
+   --------------------------------------------------------------------------- */
+.prose-eng {
+  color: var(--ink-soft);
+  font-size: 0.97rem;
+  line-height: 1.7;
+}
+
+.prose-eng > * + * {
+  margin-top: 0.9rem;
+}
+
+.prose-eng strong {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.prose-eng ul,
+.prose-eng ol {
+  padding-left: 1.3rem;
+}
+
+.prose-eng ul {
+  list-style: disc;
+}
+
+.prose-eng ol {
+  list-style: decimal;
+}
+
+.prose-eng li + li {
+  margin-top: 0.35rem;
+}
+
+.prose-eng a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Equations get their own voice — mono, larger, set apart from prose. */
+.eq {
+  margin-block: 1.1rem;
+  border-block: 1px solid var(--line);
+  padding-block: 0.7rem;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.callout {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r);
+  background: var(--accent-soft);
+  color: var(--ink);
+  padding: 0.85rem 1rem;
+  font-size: 0.92rem;
+}
+
+.callout.warn {
+  border-left-color: var(--warn);
+  background: var(--warn-soft);
+  color: var(--warn-ink);
+}
+
+.table-shell {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+}
+
+.table-shell table {
+  min-width: 34rem;
+}
+
+.prose-eng table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.prose-eng th,
+.prose-eng td {
+  border: 1px solid var(--line);
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+}
+
+.prose-eng th {
+  background: var(--surface-muted);
+  color: var(--ink);
+  font-weight: 650;
+}
+
+/* ---------------------------------------------------------------------------
+   Figures — a drawing lives on a sheet, so these stay paper in both themes
+   --------------------------------------------------------------------------- */
+.fig,
+.qfig {
+  margin-block: 1.25rem;
+  overflow-x: auto;
+  border: 1px solid var(--figure-frame);
+  border-radius: var(--r);
+  background: var(--figure-sheet);
+  padding: 0.85rem;
+}
+
+.fig svg,
+.qfig svg {
+  display: block;
+  width: 100%;
+  /* Fits inside a 375px viewport once the sheet's padding is subtracted, so
+     phones get the whole diagram without a sideways scrub. Below this the
+     13px labels in the figures stop being readable, so the sheet scrolls
+     instead of shrinking further. */
+  min-width: 19rem;
+  height: auto;
+}
+
+.fig figcaption {
+  margin-top: 0.6rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+   --------------------------------------------------------------------------- */
+.fade-in {
+  animation: fade-in 260ms ease-out both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Quiz runner — timer, verdict, results
+   --------------------------------------------------------------------------- */
+
+/* The countdown. Urgency is carried by the word "Final minute" as well as the
+   colour, because a rose chip alone says nothing to a colour-blind candidate
+   and nothing at all to a screen reader. */
+.quiz-timer {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface-muted);
+  color: var(--ink);
+  padding: 0.3rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.quiz-timer-label {
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.quiz-timer-urgent {
+  border-color: var(--incorrect);
+  background: var(--incorrect-soft);
+  color: var(--incorrect-ink);
+}
+
+.quiz-timer-urgent .quiz-timer-label {
+  color: var(--incorrect-ink);
+}
+
+/* Focus lands here the moment an answer is checked. */
+.quiz-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink-muted);
+  border-radius: var(--r);
+  background: var(--surface-muted);
+  color: var(--ink);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.quiz-verdict-correct {
+  border-color: var(--correct);
+  background: var(--correct-soft);
+  color: var(--correct-ink);
+}
+
+.quiz-verdict-incorrect {
+  border-color: var(--incorrect);
+  background: var(--incorrect-soft);
+  color: var(--incorrect-ink);
+}
+
+/* In-quiz equivalent of the review screen's "correct answer" / "your pick"
+   labels: the reveal must not be legible only as a green box. */
+.answer-option-note {
+  margin-left: 0.45rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+/* The emotional peak of the app, set as an instrument reading rather than a
+   bold number in a box. */
+.results-score {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: clamp(3.6rem, 11vw, 6.5rem);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.88;
+  font-variant-numeric: tabular-nums;
+}
+
+.results-score-total {
+  color: var(--ink-muted);
+  font-weight: 500;
+}
+
+.review-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* ---------------------------------------------------------------------------
+   Lesson section headings — the number hangs in the margin, as an annotation
+   --------------------------------------------------------------------------- */
+.lesson-heading {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line-strong);
+  box-shadow: 0 3px 0 -2px var(--line);
+  padding-bottom: 0.5rem;
+  color: var(--ink);
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  font-weight: 680;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
+}
+
+.lesson-heading-num {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* From `lg` up the prose column has a gutter, so the number hangs outside the
+   measure the way a drawing's balloon callout does. */
+@media (min-width: 1024px) {
+  .lesson-heading-num {
+    position: absolute;
+    left: -2.6rem;
+    width: 2rem;
+    text-align: right;
+  }
+}
 }

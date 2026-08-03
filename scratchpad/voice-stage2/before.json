@@ -1,0 +1,117 @@
+{
+  "passages": 528,
+  "chars": 608564,
+  "tells": {
+    "interviewer": 57,
+    "the trap": 79,
+    "trap (word)": 78,
+    "sanity check": 25,
+    "em-dash": 657,
+    "rule-of-three": 489,
+    "In practice": 3,
+    "That said": 0,
+    "Crucially": 0,
+    "Importantly": 0,
+    "It's worth noting": 0,
+    "comes down to": 0,
+    "real-world": 1,
+    "This is why": 14,
+    "self-announcing": 12,
+    "Follow-up": 32,
+    "not just X it's Y": 0,
+    "robust/leverage/nuanced/etc": 3,
+    "Distractor analysis": 18
+  },
+  "explanationLengthVisibleChars": {
+    "n": 332,
+    "mean": 899,
+    "sd": 236,
+    "min": 405,
+    "p10": 619,
+    "p25": 728,
+    "median": 873,
+    "p75": 1039,
+    "p90": 1227,
+    "max": 1767
+  },
+  "explanationLengthRawChars": {
+    "n": 332,
+    "mean": 1075,
+    "sd": 239,
+    "min": 595,
+    "p10": 812,
+    "p25": 902,
+    "median": 1036,
+    "p75": 1206,
+    "p90": 1429,
+    "max": 2028
+  },
+  "shortest": [
+    {
+      "where": "beam-deflection-q02",
+      "len": 405
+    },
+    {
+      "where": "beam-deflection-q04",
+      "len": 409
+    },
+    {
+      "where": "beam-bending-q01",
+      "len": 483
+    },
+    {
+      "where": "buckling-q17",
+      "len": 488
+    },
+    {
+      "where": "stress-analysis-q08",
+      "len": 493
+    },
+    {
+      "where": "stress-analysis-q07",
+      "len": 496
+    },
+    {
+      "where": "beam-deflection-q06",
+      "len": 496
+    },
+    {
+      "where": "stress-analysis-q25",
+      "len": 517
+    }
+  ],
+  "longest": [
+    {
+      "where": "buckling-q11",
+      "len": 1767
+    },
+    {
+      "where": "structural-loading-q43",
+      "len": 1647
+    },
+    {
+      "where": "torsion-q56",
+      "len": 1517
+    },
+    {
+      "where": "structural-loading-q08",
+      "len": 1465
+    },
+    {
+      "where": "torsion-q53",
+      "len": 1457
+    },
+    {
+      "where": "torsion-q57",
+      "len": 1439
+    },
+    {
+      "where": "beam-bending-q69",
+      "len": 1423
+    },
+    {
+      "where": "structural-loading-q09",
+      "len": 1417
+    }
+  ]
+}
