@@ -166,7 +166,7 @@ export default function BankPage() {
                       <span className="mr-2 font-semibold text-stone-500">
                         {String.fromCharCode(65 + i)}.
                       </span>
-                      <span className="[&>div]:inline"><HtmlContent html={c} /></span>
+                      <span className="[&>div]:inline"><HtmlContent html={c} glossary={false} /></span>
                     </li>
                   ))}
                 </ul>

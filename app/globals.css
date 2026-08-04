@@ -25,8 +25,8 @@
      was invisible; the grid is now two weights, like graph paper. Kept declared
      so nothing that still reads it breaks. */
   --bg-grid: rgba(15, 23, 42, 0.028);
-  --grid-fine: rgba(15, 23, 42, 0.038);
-  --grid-major: rgba(15, 23, 42, 0.085);
+  --grid-fine: rgba(15, 23, 42, 0.02);
+  --grid-major: rgba(15, 23, 42, 0.05);
   --surface: #ffffff;
   --surface-muted: #f1f5f9;
   --surface-sunken: #e9eef4;
@@ -36,7 +36,7 @@
 
   --ink: #0f172a;
   --ink-soft: #475569;
-  --ink-muted: #7c8aa0;
+  --ink-muted: #64748b;
 
   --accent: #1d4ed8;
   --accent-hover: #1e40af;
@@ -74,10 +74,11 @@
   --app-w: 75rem;
 
   --r-sm: 4px;
-  --r: 6px;
-  --r-lg: 8px;
+  --r: 8px;
+  --r-lg: 12px;
   --r-pill: 999px;
 
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px -6px rgba(15, 23, 42, 0.08);
   --shadow-pop: 0 12px 28px -8px rgba(15, 23, 42, 0.22);
   --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
 }
@@ -86,26 +87,26 @@
   :root {
     color-scheme: dark;
 
-    --bg: #0b1120;
+    --bg: #0f1117;
     --bg-grid: rgba(148, 163, 184, 0.05);
-    --grid-fine: rgba(148, 163, 184, 0.05);
-    --grid-major: rgba(148, 163, 184, 0.11);
-    --surface: #111a2d;
-    --surface-muted: #172033;
-    --surface-sunken: #0e1626;
+    --grid-fine: rgba(148, 163, 184, 0.03);
+    --grid-major: rgba(148, 163, 184, 0.07);
+    --surface: #151821;
+    --surface-muted: #1b202b;
+    --surface-sunken: #12151d;
 
-    --line: #1e293b;
-    --line-strong: #334155;
+    --line: #252b37;
+    --line-strong: #38404f;
 
-    --ink: #e2e8f0;
-    --ink-soft: #a3b2c7;
-    --ink-muted: #7d8ca3;
+    --ink: #e6eaf0;
+    --ink-soft: #b0bfd4;
+    --ink-muted: #8da0ba;
 
     --accent: #60a5fa;
     --accent-hover: #93c5fd;
-    --accent-soft: #1e3a5f;
+    --accent-soft: #1c3050;
     --accent-ink: #bfdbfe;
-    --on-accent: #0b1120;
+    --on-accent: #0c0f15;
 
     --correct: #34d399;
     --correct-soft: #06342a;
@@ -123,6 +124,7 @@
     --figure-sheet: #f6f8fa;
     --figure-frame: #475569;
 
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 12px -6px rgba(0, 0, 0, 0.45);
     --shadow-pop: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
     --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
   }
@@ -133,8 +135,8 @@
   color-scheme: light;
   --bg: #fbfcfd;
   --bg-grid: rgba(15, 23, 42, 0.028);
-  --grid-fine: rgba(15, 23, 42, 0.038);
-  --grid-major: rgba(15, 23, 42, 0.085);
+  --grid-fine: rgba(15, 23, 42, 0.02);
+  --grid-major: rgba(15, 23, 42, 0.05);
   --surface: #ffffff;
   --surface-muted: #f1f5f9;
   --surface-sunken: #e9eef4;
@@ -142,7 +144,7 @@
   --line-strong: #cbd5e1;
   --ink: #0f172a;
   --ink-soft: #475569;
-  --ink-muted: #7c8aa0;
+  --ink-muted: #64748b;
   --accent: #1d4ed8;
   --accent-hover: #1e40af;
   --accent-soft: #dbeafe;
@@ -159,29 +161,30 @@
   --warn-ink: #92400e;
   --figure-sheet: #ffffff;
   --figure-frame: #cbd5e1;
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px -6px rgba(15, 23, 42, 0.08);
   --shadow-pop: 0 12px 28px -8px rgba(15, 23, 42, 0.22);
   --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0b1120;
+  --bg: #0f1117;
   --bg-grid: rgba(148, 163, 184, 0.05);
-  --grid-fine: rgba(148, 163, 184, 0.05);
-  --grid-major: rgba(148, 163, 184, 0.11);
-  --surface: #111a2d;
-  --surface-muted: #172033;
-  --surface-sunken: #0e1626;
-  --line: #1e293b;
-  --line-strong: #334155;
-  --ink: #e2e8f0;
-  --ink-soft: #a3b2c7;
-  --ink-muted: #7d8ca3;
+  --grid-fine: rgba(148, 163, 184, 0.03);
+  --grid-major: rgba(148, 163, 184, 0.07);
+  --surface: #151821;
+  --surface-muted: #1b202b;
+  --surface-sunken: #12151d;
+  --line: #252b37;
+  --line-strong: #38404f;
+  --ink: #e6eaf0;
+  --ink-soft: #b0bfd4;
+  --ink-muted: #8da0ba;
   --accent: #60a5fa;
   --accent-hover: #93c5fd;
-  --accent-soft: #1e3a5f;
+  --accent-soft: #1c3050;
   --accent-ink: #bfdbfe;
-  --on-accent: #0b1120;
+  --on-accent: #0c0f15;
   --correct: #34d399;
   --correct-soft: #06342a;
   --correct-ink: #6ee7b7;
@@ -193,6 +196,7 @@
   --warn-ink: #fcd34d;
   --figure-sheet: #f6f8fa;
   --figure-frame: #475569;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 12px -6px rgba(0, 0, 0, 0.45);
   --shadow-pop: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
   --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
 }
@@ -256,9 +260,10 @@
   --color-amber-800: var(--warn-ink);
   --color-amber-900: var(--warn-ink);
 
-  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-sans: var(--font-geist-sans), "Geist", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+    Consolas, monospace;
 }
 
 /* ---------------------------------------------------------------------------
@@ -282,37 +287,6 @@ body {
   font-family: var(--font-sans);
   font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
-}
-
-/* The signature: graph paper. Two weights — an 8px fine rule and a heavier rule
-   every fifth line — because a single-weight grid at 2.8% read as noise, not as
-   a surface you could measure against.
-
-   It is also STRUCTURAL, not decorative. Both layers are offset so a major rule
-   falls exactly on the viewport centreline; `.app-container` is 75rem = 1200px
-   = 30 major squares, so the content column's left and right edges sit on major
-   rules at every width above 1232px. The grid explains the alignment. */
-body::before {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  content: "";
-  background-image:
-    linear-gradient(to right, var(--grid-fine) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-fine) 1px, transparent 1px),
-    linear-gradient(to right, var(--grid-major) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px);
-  background-size:
-    var(--grid-unit) var(--grid-unit),
-    var(--grid-unit) var(--grid-unit),
-    var(--grid-major-unit) var(--grid-major-unit),
-    var(--grid-major-unit) var(--grid-major-unit);
-  background-position:
-    calc(50% + var(--grid-unit) / 2) 0,
-    0 0,
-    calc(50% + var(--grid-major-unit) / 2) 0,
-    0 0;
 }
 
 /* Numbers are typeset, not just printed. */
@@ -408,10 +382,10 @@ button:disabled {
   position: sticky;
   top: 0;
   z-index: 40;
-  border-bottom: 1px solid var(--frame-ink);
-  box-shadow: 0 -4px 0 0 var(--line) inset;
-  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(12px);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .app-container {
@@ -482,14 +456,11 @@ button:disabled {
    the mono face is the cheapest signal that this is an instrument. 12px keeps
    it legible at 4.5:1 on --ink-soft. */
 .nav-link {
-  border-radius: var(--r-sm);
+  border-radius: var(--r);
   color: var(--ink-soft);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 0.4rem 0.6rem;
+  padding: 0.45rem 0.7rem;
 }
 
 .nav-link:hover {
@@ -502,7 +473,7 @@ button:disabled {
 .nav-link-active {
   background: var(--accent-soft);
   color: var(--accent-ink);
-  font-weight: 650;
+  font-weight: 600;
 }
 
 /* Count of items due for spaced-repetition review. The one number in the
@@ -535,11 +506,10 @@ button:disabled {
 }
 
 .app-footer {
-  border-top: 1px solid var(--frame-ink);
-  box-shadow: 0 4px 0 -3px var(--line) inset;
+  border-top: 1px solid var(--line);
   color: var(--ink-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   letter-spacing: 0.02em;
   padding-block: 1.25rem;
 }
@@ -596,19 +566,19 @@ button:disabled {
    mono keys); it previously spanned ~1.5×, which is not a hierarchy. */
 .display-title {
   color: var(--ink);
-  font-size: clamp(2.35rem, 6vw, 4.25rem);
+  font-size: clamp(2.1rem, 4.2vw, 3.3rem);
   font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 0.96;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
   text-wrap: balance;
 }
 
 .page-title {
   color: var(--ink);
-  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  font-size: clamp(1.75rem, 3vw, 2.4rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.08;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
   text-wrap: balance;
 }
 
@@ -624,7 +594,8 @@ button:disabled {
 .body-copy {
   max-width: 68ch;
   color: var(--ink-soft);
-  line-height: 1.65;
+  font-size: 1.0625rem;
+  line-height: 1.7;
   text-wrap: pretty;
 }
 
@@ -641,7 +612,7 @@ button:disabled {
   gap: 0.4rem;
   color: var(--ink-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
@@ -664,9 +635,9 @@ button:disabled {
   gap: 0.7rem;
   color: var(--ink-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   line-height: 1;
 }
@@ -676,7 +647,7 @@ button:disabled {
   flex: 1 1 auto;
   height: 1px;
   min-width: 1rem;
-  background: var(--line-strong);
+  background: var(--line);
 }
 
 .annot-num {
@@ -687,9 +658,9 @@ button:disabled {
 .mono-key {
   color: var(--ink-muted);
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   line-height: 1;
 }
@@ -698,7 +669,7 @@ button:disabled {
 .mono-meta {
   color: var(--ink-muted);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
 }
@@ -709,43 +680,16 @@ button:disabled {
    screen — plus the lesson's title block. */
 .sheet {
   position: relative;
-  border: 1px solid var(--frame-ink);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  padding: 5px;
-}
-
-.sheet-body {
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
-.sheet::after {
-  position: absolute;
-  content: "";
-  inset: -1px;
-  pointer-events: none;
-  background-image:
-    linear-gradient(var(--frame-tick), var(--frame-tick)),
-    linear-gradient(var(--frame-tick), var(--frame-tick)),
-    linear-gradient(var(--frame-tick), var(--frame-tick)),
-    linear-gradient(var(--frame-tick), var(--frame-tick)),
-    linear-gradient(var(--frame-tick), var(--frame-tick)),
-    linear-gradient(var(--frame-tick), var(--frame-tick)),
-    linear-gradient(var(--frame-tick), var(--frame-tick)),
-    linear-gradient(var(--frame-tick), var(--frame-tick));
-  background-repeat: no-repeat;
-  background-size:
-    15px 2px, 2px 15px,
-    15px 2px, 2px 15px,
-    15px 2px, 2px 15px,
-    15px 2px, 2px 15px;
-  background-position:
-    left top, left top,
-    right top, right top,
-    left bottom, left bottom,
-    right bottom, right bottom;
+.sheet-body {
+  border: 0;
+  border-radius: 0;
 }
 
 /* The title block. Sits on the bottom edge of a sheet the way a drawing's does:
@@ -775,7 +719,7 @@ button:disabled {
 
 .title-block-key {
   color: var(--ink-muted);
-  font-size: 0.6rem;
+  font-size: 0.66rem;
   font-weight: 600;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -785,7 +729,7 @@ button:disabled {
 .title-block-val {
   overflow: hidden;
   color: var(--ink);
-  font-size: 0.76rem;
+  font-size: 0.82rem;
   font-weight: 500;
   letter-spacing: 0.01em;
   line-height: 1.2;
@@ -839,7 +783,7 @@ button:disabled {
   align-items: baseline;
   gap: 0.35rem;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -894,13 +838,14 @@ button:disabled {
 .topic-card {
   border: 1px solid var(--line);
   background: var(--surface);
+  box-shadow: var(--shadow-card);
 }
 
 .hero-panel {
   position: relative;
   overflow: hidden;
   border-radius: var(--r-lg);
-  padding: clamp(1.25rem, 3.5vw, 2.25rem);
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
 }
 
 .hero-copy {
@@ -910,12 +855,12 @@ button:disabled {
 
 .panel {
   border-radius: var(--r-lg);
-  padding: clamp(1rem, 2.5vw, 1.4rem);
+  padding: clamp(1.15rem, 2.5vw, 1.6rem);
 }
 
 .question-panel {
   border-radius: var(--r-lg);
-  padding: clamp(1rem, 2.5vw, 1.4rem);
+  padding: clamp(1.15rem, 2.5vw, 1.75rem);
 }
 
 .question-panel-correct {
@@ -930,6 +875,7 @@ button:disabled {
 
 .interactive-card:hover {
   border-color: var(--line-strong);
+  box-shadow: var(--shadow-pop);
 }
 
 .dense-grid {
@@ -983,9 +929,9 @@ button:disabled {
   border-radius: var(--r-sm);
   background: var(--correct-soft);
   color: var(--correct-ink);
-  padding: 0.1rem 0.4rem;
+  padding: 0.15rem 0.45rem;
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1103,8 +1049,8 @@ button:disabled {
   border-radius: var(--r);
   background: var(--surface);
   color: var(--ink-soft);
-  padding: 0.4rem 0.75rem;
-  font-size: 0.83rem;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.875rem;
   font-weight: 550;
 }
 
@@ -1125,8 +1071,8 @@ button:disabled {
   border-radius: var(--r-pill);
   background: var(--surface);
   color: var(--ink-soft);
-  padding: 0.25rem 0.7rem;
-  font-size: 0.78rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.82rem;
   font-weight: 550;
 }
 
@@ -1143,7 +1089,7 @@ button:disabled {
   border-radius: 2px;
   border: 1px solid var(--line);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -1290,9 +1236,9 @@ button:disabled {
   border-radius: var(--r);
   background: var(--surface);
   color: var(--ink);
-  padding: 0.6rem 0.8rem;
+  padding: 0.7rem 0.9rem;
   text-align: left;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.5;
 }
 
@@ -1345,6 +1291,12 @@ button:disabled {
   font-weight: 700;
 }
 
+/* HtmlContent rendered mid-sentence (e.g. "Why B is wrong: <note>"). */
+.inline-content,
+.inline-content > * {
+  display: inline;
+}
+
 .solution-box {
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
@@ -1358,8 +1310,8 @@ button:disabled {
    --------------------------------------------------------------------------- */
 .prose-eng {
   color: var(--ink-soft);
-  font-size: 0.97rem;
-  line-height: 1.7;
+  font-size: 1.02rem;
+  line-height: 1.75;
 }
 
 .prose-eng > * + * {
@@ -1530,9 +1482,9 @@ button:disabled {
 .quiz-timer-label {
   color: var(--ink-soft);
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.66rem;
   font-weight: 600;
-  letter-spacing: 0.11em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
@@ -1623,8 +1575,7 @@ button:disabled {
   align-items: baseline;
   gap: 0.75rem;
   margin-bottom: 0.85rem;
-  border-bottom: 1px solid var(--line-strong);
-  box-shadow: 0 3px 0 -2px var(--line);
+  border-bottom: 1px solid var(--line);
   padding-bottom: 0.5rem;
   color: var(--ink);
   font-size: clamp(1.25rem, 2.4vw, 1.6rem);
@@ -1652,5 +1603,55 @@ button:disabled {
     width: 2rem;
     text-align: right;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   Glossary terms — dashed underline in prose, definition box on hover/focus
+   --------------------------------------------------------------------------- */
+.term {
+  cursor: help;
+  border-bottom: 1px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 1px;
+}
+
+.term:hover,
+.term:focus-visible {
+  color: var(--accent-ink);
+  background: color-mix(in srgb, var(--accent-soft) 60%, transparent);
+  border-bottom-color: var(--accent);
+}
+
+.term-tooltip {
+  position: fixed;
+  z-index: 70;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow-pop);
+  padding: 0.7rem 0.85rem;
+  animation: fade-in 120ms ease-out both;
+}
+
+.term-tooltip-title {
+  margin-bottom: 0.3rem;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.term-tooltip-body {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.term-tooltip-body em {
+  color: var(--ink);
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
 }
 }

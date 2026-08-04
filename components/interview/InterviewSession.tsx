@@ -19,6 +19,7 @@ import {
   type InterviewReport,
 } from "@/lib/interview";
 import HtmlContent from "@/components/HtmlContent";
+import MathKeyboard from "@/components/MathKeyboard";
 import SelfGradeStep from "@/components/interview/SelfGradeStep";
 
 interface Response {
@@ -89,6 +90,7 @@ export default function InterviewSession({ plan, stages, onFinish, onAbandon }: 
   const spoken = useRef<Set<number>>(new Set());
   const autoSubmitted = useRef(false);
   const finishedAt = useRef<number | null>(null);
+  const qnaInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Per-question time on screen, accumulated across visits.
   const spent = useRef<number[]>(items.map(() => 0));
@@ -628,12 +630,18 @@ export default function InterviewSession({ plan, stages, onFinish, onAbandon }: 
         ) : (
           <div className="mt-4 space-y-2">
             <textarea
+              ref={qnaInputRef}
               value={resp.text}
               aria-label="Your answer"
               onChange={(e) => setResp({ text: e.target.value })}
               placeholder="Answer as you would out loud: assumptions, the approach, the number, then the sanity check."
               className="textarea-field"
               rows={7}
+            />
+            <MathKeyboard
+              targetRef={qnaInputRef}
+              value={resp.text}
+              onValueChange={(text) => setResp({ text })}
             />
             <p className="muted text-xs">
               You will compare this against a model answer and grade yourself once the clock

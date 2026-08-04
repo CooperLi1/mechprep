@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ALL_QUESTIONS, QNA_POOLS } from "@/content/index";
 import { getTopic } from "@/content/topics";
 import type { MCQuestion } from "@/content/types";
 import HtmlContent from "@/components/HtmlContent";
-import { DIFF_LABEL, gradeNumeric, shuffle, type QuizItem } from "@/lib/quiz";
+import MathKeyboard from "@/components/MathKeyboard";
+import { DIFF_LABEL, diagnoseNumeric, gradeNumeric, shuffle, type QuizItem } from "@/lib/quiz";
 import {
   getProgress,
   isBookmarked,
@@ -113,6 +114,7 @@ export default function ReviewClient() {
   const [choice, setChoice] = useState<number | null>(null);
   const [text, setText] = useState("");
   const [revealed, setRevealed] = useState(false);
+  const qnaInputRef = useRef<HTMLTextAreaElement | null>(null);
   const [log, setLog] = useState<{ correct: boolean; topic: string }[]>([]);
   const [sessionId, setSessionId] = useState(newSessionId);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -371,12 +373,19 @@ export default function ReviewClient() {
         ) : (
           <div className="mt-4 space-y-3">
             <textarea
+              ref={qnaInputRef}
               value={text}
               disabled={revealed}
               onChange={(e) => setText(e.target.value)}
               placeholder="Answer out loud or in your own words first, then compare."
               aria-label="Your answer"
               className="textarea-field"
+            />
+            <MathKeyboard
+              targetRef={qnaInputRef}
+              value={text}
+              onValueChange={setText}
+              disabled={revealed}
             />
             {!revealed && (
               <button type="button" onClick={() => setRevealed(true)} className="btn btn-primary">
@@ -413,6 +422,15 @@ export default function ReviewClient() {
           >
             <span className="font-bold">{graded.correct ? "✓ Correct" : "✕ Not this time"}</span>
             {graded.outcome && <span>{graded.outcome}</span>}
+            {!graded.correct && item.type === "numeric" && (() => {
+              const hint = diagnoseNumeric(text, item.answer, item.tolerance ?? 0.03);
+              return hint ? (
+                <span className="basis-full font-normal" data-numeric-hint>
+                  <span className="font-semibold">Where you likely went wrong: </span>
+                  {hint}
+                </span>
+              ) : null;
+            })()}
           </div>
         )}
 

@@ -4,9 +4,20 @@ import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 
 import Link from "next/link";
 import type { MCQuestion } from "@/content/types";
 import { getTopic } from "@/content/topics";
-import { gradeNumeric, shuffle, DIFF_LABEL, DIFF_COLOR, type BankQuestion, type QuizItem } from "@/lib/quiz";
+import {
+  diagnoseNumeric,
+  gradeNumeric,
+  modelAnswerGaps,
+  questionHint,
+  shuffle,
+  DIFF_LABEL,
+  DIFF_COLOR,
+  type BankQuestion,
+  type QuizItem,
+} from "@/lib/quiz";
 import { progressError, recordAnswers, type GradedItem } from "@/lib/progress";
 import HtmlContent from "@/components/HtmlContent";
+import MathKeyboard from "@/components/MathKeyboard";
 
 export type QuizMode = "practice" | "exam";
 
@@ -15,6 +26,7 @@ interface Response {
   text: string; // numeric input
   checked: boolean; // practice mode: answer revealed
   selfGrade: "correct" | "incorrect" | null; // open-ended Q&A self-assessment
+  hintShown: boolean; // practice mode: hint requested before answering
 }
 
 interface Props {
@@ -27,7 +39,7 @@ interface Props {
   onRetry?: (items: QuizItem[]) => void;
 }
 
-const EMPTY_RESPONSE: Response = { choice: null, text: "", checked: false, selfGrade: null };
+const EMPTY_RESPONSE: Response = { choice: null, text: "", checked: false, selfGrade: null, hintShown: false };
 
 const SAVE_FAILED_FALLBACK =
   "Your results could not be saved to this browser. They are shown here but " +
@@ -139,6 +151,7 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
   const exitDialogRef = useRef<HTMLDivElement | null>(null);
   const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const paletteRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const qnaInputRef = useRef<HTMLTextAreaElement | null>(null);
   const wantsFeedbackFocus = useRef(false);
   const promptId = useId();
 
@@ -527,10 +540,16 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
                               : "border-slate-200"
                         }`}
                       >
-                        <HtmlContent html={qq.choices[orig] ?? ""} />
+                        <HtmlContent html={qq.choices[orig] ?? ""} glossary={false} />
                         {isAns && <span className="ml-1 text-xs font-semibold text-emerald-800">correct answer</span>}
                         {isPicked && !isAns && <span className="ml-1 text-xs font-semibold text-rose-800">your pick</span>}
                         {isPicked && isAns && <span className="ml-1 text-xs font-semibold text-emerald-800">— your pick</span>}
+                        {isPicked && !isAns && qq.whyWrong?.[orig]?.trim() && (
+                          <div className="mt-1 text-xs text-rose-700" data-why-wrong>
+                            <span className="font-semibold">Why this is wrong: </span>
+                            <HtmlContent html={qq.whyWrong[orig] ?? ""} className="inline-content" />
+                          </div>
+                        )}
                       </li>
                     );
                   })}
@@ -543,6 +562,15 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
                   </span>{" "}
                   · Expected: <span className="font-semibold">{qq.answer}</span>{" "}
                   {qq.unit && <span className="text-stone-500">{qq.unit}</span>}
+                  {!ok && (() => {
+                    const hint = diagnoseNumeric(r.text, qq.answer, qq.tolerance ?? 0.03);
+                    return hint ? (
+                      <div className="mt-1 text-xs text-rose-700" data-numeric-hint>
+                        <span className="font-semibold">Where you likely went wrong: </span>
+                        {hint}
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               ) : qq.type === "qna" ? (
                 <div className="mt-3 space-y-3 text-sm">
@@ -585,6 +613,24 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
   const revealed = q.type === "qna" ? resp.checked : mode === "practice" && resp.checked;
   const isLast = safeIdx === questions.length - 1;
   const correctNow = revealed && q.type !== "qna" ? isCorrect(q, perm, resp) : false;
+
+  // Wrong-answer coaching. For MC, content may explain the specific trap the
+  // picked choice falls into; for numeric, the diagnosis is derived from the
+  // relationship between the typed value and the expected one.
+  const pickedOrig =
+    q.type === "mc" && perm && resp.choice !== null ? (perm[resp.choice] ?? null) : null;
+  const whyWrongNote =
+    revealed && !correctNow && q.type === "mc" && pickedOrig !== null
+      ? q.whyWrong?.[pickedOrig]?.trim() || null
+      : null;
+  const numericHint =
+    revealed && !correctNow && q.type === "numeric"
+      ? diagnoseNumeric(resp.text, q.answer, q.tolerance ?? 0.03)
+      : null;
+  const qnaGaps =
+    revealed && q.type === "qna" ? modelAnswerGaps(q.modelAnswer, resp.text) : [];
+  // Hints are a practice-mode aid; a timed exam gets none.
+  const hint = mode === "practice" && !revealed && q.type !== "qna" ? questionHint(q) : null;
 
   const reveal = () => {
     wantsFeedbackFocus.current = true;
@@ -901,7 +947,7 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
                 >
                   <span className="mr-2 font-semibold text-stone-500">{letter(di)}.</span>
                   <span className="inline-block align-middle [&>div]:inline">
-                    <HtmlContent html={q.choices[orig] ?? ""} />
+                    <HtmlContent html={q.choices[orig] ?? ""} glossary={false} />
                   </span>
                   {note && (
                     <span className="answer-option-note">{note}</span>
@@ -948,8 +994,9 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
             )}
           </div>
         ) : q.type === "qna" ? (
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-2">
             <textarea
+              ref={qnaInputRef}
               value={resp.text}
               readOnly={revealed}
               aria-label="Your answer"
@@ -957,8 +1004,36 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
               placeholder="Draft your answer in your own words, then compare against the model answer."
               className="textarea-field"
             />
+            <MathKeyboard
+              targetRef={qnaInputRef}
+              value={resp.text}
+              onValueChange={(text) => setResp({ text })}
+              disabled={revealed}
+            />
           </div>
         ) : null}
+
+        {hint && !resp.hintShown && (
+          <button
+            type="button"
+            data-show-hint
+            onClick={() => setResp({ hintShown: true })}
+            className="link-quiet mt-4 text-sm font-medium"
+          >
+            Show hint
+          </button>
+        )}
+        {hint && resp.hintShown && (
+          <div className="soft-callout mt-4 text-sm" data-hint>
+            <span className="mono-key mr-2">Hint</span>
+            <HtmlContent html={hint.html} className="inline-content" />
+            {hint.derived && (
+              <span className="muted block pt-1 text-xs">
+                From the first line of the worked solution.
+              </span>
+            )}
+          </div>
+        )}
 
         {/* The verdict. Focused on reveal and marked role="status", so the
             outcome reaches keyboard and screen-reader users the same moment it
@@ -997,6 +1072,18 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
                 ) : null}
               </span>
             )}
+            {whyWrongNote && resp.choice !== null && (
+              <div className="basis-full text-sm font-normal" data-why-wrong>
+                <span className="font-semibold">Why {letter(resp.choice)} is wrong: </span>
+                <HtmlContent html={whyWrongNote} className="inline-content" />
+              </div>
+            )}
+            {numericHint && (
+              <div className="basis-full text-sm font-normal" data-numeric-hint>
+                <span className="font-semibold">Where you likely went wrong: </span>
+                {numericHint}
+              </div>
+            )}
           </div>
         )}
 
@@ -1004,6 +1091,29 @@ export default function QuizRunner({ questions, mode, timerMinutes, title, onExi
           <div className="solution-box mt-4">
             <div className="mb-1 text-xs font-bold text-stone-500">Model answer</div>
             <HtmlContent html={q.modelAnswer} className="text-sm" />
+            {resp.text.trim() !== "" && (
+              <p className="mt-3 text-sm text-stone-600" data-coverage>
+                {qnaGaps.length > 0 ? (
+                  <>
+                    <span className="font-semibold">Coverage check:</span> your draft never
+                    mentions {qnaGaps.map((w, i) => (
+                      <span key={w}>
+                        {i > 0 && ", "}
+                        <em>{w}</em>
+                      </span>
+                    ))}{" "}
+                    — see how the model answer uses {qnaGaps.length === 1 ? "it" : "them"} before
+                    grading yourself.
+                  </>
+                ) : (
+                  <>
+                    <span className="font-semibold">Coverage check:</span> your draft touches the
+                    model answer&apos;s key terms — now compare the reasoning, not just the
+                    vocabulary.
+                  </>
+                )}
+              </p>
+            )}
             <div
               className="mt-4 flex flex-wrap gap-2"
               role="group"

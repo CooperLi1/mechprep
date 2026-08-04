@@ -711,6 +711,13 @@ const content: TopicContent = {
         "5 &mdash; three at the pin (including a moment), two at the roller",
       ],
       answer: 1,
+      hint: `Count blocked degrees of freedom support by support: how many directions of motion does a pin stop, and how many does a roller stop?`,
+      whyWrong: [
+        `Treating the pin as a single force quietly deletes A<sub>x</sub>. A pin blocks translation in <em>both</em> x and y, so it contributes two unknown components, not one.`,
+        ``,
+        `This gives the roller two components — that is a pin's count. A roller only blocks translation perpendicular to its rolling surface, so it contributes exactly one.`,
+        `A moment reaction at A would make it a fixed (built-in) support. A pin lets the bracket rotate freely, so it supplies no moment — only the two force components.`,
+      ],
       explanation: `<p>Count blocked degrees of freedom. The <strong>pin</strong> stops translation in both x and y but lets the bracket rotate, so it supplies <strong>two force components and no moment</strong>. The <strong>roller</strong> stops translation only perpendicular to its surface, so it supplies <strong>one</strong>. Total <strong>3 unknowns</strong>, matching the three 2D equilibrium equations, so the bracket is determinate.</p>
 <p>Treating a pin as a single force quietly deletes A<sub>x</sub> and is the most common miss. Giving a roller two components confuses it with a pin. Adding a moment at the pin turns it into a fixed support. Say the count out loud before writing equations; it is also how you spot indeterminacy in one second.</p>`,
     },
@@ -722,6 +729,7 @@ const content: TopicContent = {
       figure: figQ02,
       answer: 1.95,
       unit: "m",
+      hint: `A couple is a free vector — it adds the same moment about every point, but no force. Match the resultant moment about A.`,
       explanation: `<p>An equivalent system has to match both the resultant force and the resultant moment about <em>any</em> point. The couple contributes no force, so</p>
 <p class="eq">R = 6 kN downward</p>
 <p>Now match moments about A, clockwise positive. The 6 kN at 1.2 m gives 7.20 kN&middot;m, and the couple adds its 4.50 kN&middot;m at full value, because a couple is a free vector with the same moment about every point:</p>
