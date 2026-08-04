@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { TOPICS, getTopic } from "@/content/topics";
 import { ALL_QUESTIONS } from "@/content/index";
 import type { Difficulty } from "@/content/types";
-import { DIFF_LABEL, DIFF_COLOR } from "@/lib/quiz";
+import {
+  DIFF_LABEL,
+  DIFF_COLOR,
+  diagnoseNumeric,
+  gradeNumeric,
+  type BankQuestion,
+} from "@/lib/quiz";
 import HtmlContent from "@/components/HtmlContent";
 
 const PAGE_SIZE = 20;
@@ -79,7 +85,8 @@ export default function BankPage() {
       <div>
         <h1 className="section-title">Question bank</h1>
         <p className="body-copy mt-2 text-sm">
-        All {ALL_QUESTIONS.length} questions with full worked solutions. Expand any card to study the answer.
+        All {ALL_QUESTIONS.length} questions with full worked solutions. Answer any card right
+        here — pick a choice or type a number — or open the solution to study it directly.
         </p>
       </div>
 
@@ -136,64 +143,15 @@ export default function BankPage() {
       </div>
 
       <div className="space-y-4">
-        {filtered.slice(0, limit).map((q) => {
-          const isOpen = open.has(q.id);
-          return (
-            <article key={q.id} className="question-panel interactive-card">
-              <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
-                <span className={`rounded-full px-2 py-0.5 font-semibold ${DIFF_COLOR[q.difficulty]}`}>
-                  {DIFF_LABEL[q.difficulty]}
-                </span>
-                <span className="status-pill">
-                  {getTopic(q.topic)?.short ?? q.topic}
-                </span>
-                <span className="text-stone-400">{q.type === "mc" ? "multiple choice" : "numeric"}</span>
-                <span className="ml-auto font-mono text-stone-400">{q.id}</span>
-              </div>
-              <HtmlContent html={q.prompt} />
-              {q.figure && <div className="qfig" dangerouslySetInnerHTML={{ __html: q.figure }} />}
-              {q.type === "mc" && (
-                <ul className="mt-3 space-y-1.5 text-sm">
-                  {q.choices.map((c, i) => (
-                    <li
-                      key={i}
-                      className={`rounded-lg border px-3 py-1.5 ${
-                        isOpen && i === q.answer
-                          ? "border-emerald-400 bg-emerald-50"
-                          : "border-stone-200 bg-white/50"
-                      }`}
-                    >
-                      <span className="mr-2 font-semibold text-stone-500">
-                        {String.fromCharCode(65 + i)}.
-                      </span>
-                      <span className="[&>div]:inline"><HtmlContent html={c} glossary={false} /></span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <button
-                onClick={() => toggle(q.id)}
-                className="mt-4 text-sm font-bold text-accent-dark hover:text-accent"
-                aria-expanded={isOpen}
-              >
-                {isOpen ? "Hide solution ↑" : "Show solution ↓"}
-              </button>
-              {isOpen && (
-                <div className="solution-box mt-3">
-                  {q.type === "numeric" && (
-                    <div className="mb-2 text-sm">
-                      Answer:{" "}
-                      <span className="font-bold">
-                        {q.answer} {q.unit ?? ""}
-                      </span>
-                    </div>
-                  )}
-                  <HtmlContent html={q.explanation} className="text-sm" />
-                </div>
-              )}
-            </article>
-          );
-        })}
+        {filtered.slice(0, limit).map((q) => (
+          <BankCard
+            key={q.id}
+            q={q}
+            isOpen={open.has(q.id)}
+            onToggle={() => toggle(q.id)}
+            onAnswered={() => setOpen((cur) => new Set(cur).add(q.id))}
+          />
+        ))}
       </div>
 
       {filtered.length > limit && (
@@ -207,5 +165,181 @@ export default function BankPage() {
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * One answerable bank card. Choices grade on click and a numeric field grades
+ * on Check/Enter — same feedback as the quiz runner (correct/incorrect states,
+ * per-choice whyWrong notes, numeric diagnosis) — and answering opens the
+ * worked solution. Nothing here records progress: the bank is a browsing
+ * surface, so answers are throwaway by design.
+ *
+ * MC choices render in stored order (no shuffle): this page also serves
+ * study-with-solution-open, where a stable order matters more than quiz
+ * hygiene, and the bank's answer keys are already spread across indices.
+ */
+function BankCard({
+  q,
+  isOpen,
+  onToggle,
+  onAnswered,
+}: {
+  q: BankQuestion;
+  isOpen: boolean;
+  onToggle: () => void;
+  onAnswered: () => void;
+}) {
+  const [choice, setChoice] = useState<number | null>(null);
+  const [text, setText] = useState("");
+  const [checked, setChecked] = useState(false);
+
+  const correct =
+    checked &&
+    (q.type === "mc"
+      ? choice === q.answer
+      : gradeNumeric(text, q.answer, q.tolerance ?? 0.03));
+  const numericHint =
+    checked && !correct && q.type === "numeric"
+      ? diagnoseNumeric(text, q.answer, q.tolerance ?? 0.03)
+      : null;
+
+  const pick = (i: number) => {
+    if (checked) return;
+    setChoice(i);
+    setChecked(true);
+    onAnswered();
+  };
+
+  const checkNumeric = (e: FormEvent) => {
+    e.preventDefault();
+    if (checked || text.trim() === "") return;
+    setChecked(true);
+    onAnswered();
+  };
+
+  return (
+    <article className="question-panel interactive-card">
+      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+        <span className={`rounded-full px-2 py-0.5 font-semibold ${DIFF_COLOR[q.difficulty]}`}>
+          {DIFF_LABEL[q.difficulty]}
+        </span>
+        <span className="status-pill">{getTopic(q.topic)?.short ?? q.topic}</span>
+        <span className="text-stone-400">{q.type === "mc" ? "multiple choice" : "numeric"}</span>
+        <span className="ml-auto font-mono text-stone-400">{q.id}</span>
+      </div>
+      <HtmlContent html={q.prompt} />
+      {q.figure && <div className="qfig" dangerouslySetInnerHTML={{ __html: q.figure }} />}
+
+      {q.type === "mc" ? (
+        <ul className="mt-3 space-y-1.5 text-sm">
+          {q.choices.map((c, i) => {
+            const isAns = i === q.answer;
+            const isPick = i === choice;
+            // Answered: grade the pick. Unanswered with the solution open:
+            // highlight the key (the pre-existing study behaviour).
+            let cls = "";
+            if (checked && isAns) cls = "answer-option-correct";
+            else if (checked && isPick) cls = "answer-option-incorrect";
+            else if (!checked && isOpen && isAns) cls = "answer-option-correct";
+            return (
+              <li key={i}>
+                <button
+                  type="button"
+                  onClick={() => pick(i)}
+                  aria-disabled={checked || undefined}
+                  className={`answer-option ${cls} ${checked ? "cursor-default" : "cursor-pointer"}`}
+                >
+                  <span className="mr-2 font-semibold text-stone-500">
+                    {String.fromCharCode(65 + i)}.
+                  </span>
+                  <span className="inline-block align-middle [&>div]:inline">
+                    <HtmlContent html={c} glossary={false} />
+                  </span>
+                  {checked && isPick && !isAns && (
+                    <span className="answer-option-note">your pick</span>
+                  )}
+                  {checked && isAns && (
+                    <span className="answer-option-note">
+                      {isPick ? "correct — your pick" : "correct answer"}
+                    </span>
+                  )}
+                  {checked && isPick && !isAns && q.whyWrong?.[i]?.trim() && (
+                    <span className="mt-1 block text-xs font-normal" data-why-wrong>
+                      <span className="font-semibold">Why this is wrong: </span>
+                      <HtmlContent html={q.whyWrong[i] ?? ""} className="inline-content" />
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <form onSubmit={checkNumeric} className="mt-3 flex flex-wrap items-center gap-2">
+          <input
+            type="text"
+            inputMode="decimal"
+            autoComplete="off"
+            spellCheck={false}
+            value={text}
+            readOnly={checked}
+            aria-label="Your answer"
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Your answer"
+            className="text-field w-44 tabular-nums"
+          />
+          {q.unit && <span className="text-sm text-stone-600">{q.unit}</span>}
+          {!checked && (
+            <button type="submit" className="btn btn-primary min-h-0 px-4 py-1.5">
+              Check
+            </button>
+          )}
+        </form>
+      )}
+
+      {checked && (
+        <div
+          role="status"
+          data-verdict={correct ? "correct" : "incorrect"}
+          className={`quiz-verdict mt-3 ${correct ? "quiz-verdict-correct" : "quiz-verdict-incorrect"}`}
+        >
+          <span>
+            <span aria-hidden="true">{correct ? "✓ " : "✕ "}</span>
+            {correct ? "Correct" : "Incorrect"}
+            {q.type === "numeric" && (
+              <> — expected {q.answer}{q.unit ? ` ${q.unit}` : ""}</>
+            )}
+          </span>
+          {numericHint && (
+            <div className="basis-full text-sm font-normal" data-numeric-hint>
+              <span className="font-semibold">Where you likely went wrong: </span>
+              {numericHint}
+            </div>
+          )}
+        </div>
+      )}
+
+      <button
+        onClick={onToggle}
+        className="mt-4 text-sm font-bold text-accent-dark hover:text-accent"
+        aria-expanded={isOpen}
+      >
+        {isOpen ? "Hide solution ↑" : "Show solution ↓"}
+      </button>
+      {isOpen && (
+        <div className="solution-box mt-3">
+          {q.type === "numeric" && (
+            <div className="mb-2 text-sm">
+              Answer:{" "}
+              <span className="font-bold">
+                {q.answer} {q.unit ?? ""}
+              </span>
+            </div>
+          )}
+          <HtmlContent html={q.explanation} className="text-sm" />
+        </div>
+      )}
+    </article>
   );
 }

@@ -24,6 +24,7 @@ const MARGIN = 8;
 export default function TermTooltip() {
   const [tip, setTip] = useState<TipState | null>(null);
   const hideTimer = useRef<number | null>(null);
+  const anchorRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const cancelHide = () => {
@@ -36,9 +37,16 @@ export default function TermTooltip() {
     const show = (el: HTMLElement) => {
       const id = el.dataset.term;
       if (!id) return;
+      // Re-entering the same term must not re-create the tooltip (that
+      // restarts the fade and reads as flicker) — just cancel any hide.
+      if (anchorRef.current === el) {
+        cancelHide();
+        return;
+      }
       const entry = glossaryEntry(id);
       if (!entry) return;
       cancelHide();
+      anchorRef.current = el;
       const r = el.getBoundingClientRect();
       const below = r.top < 180; // not enough room above → open downward
       const x = Math.min(
@@ -57,16 +65,31 @@ export default function TermTooltip() {
 
     const scheduleHide = () => {
       cancelHide();
-      hideTimer.current = window.setTimeout(() => setTip(null), 120);
+      hideTimer.current = window.setTimeout(() => {
+        anchorRef.current = null;
+        setTip(null);
+      }, 200);
     };
 
     const onOver = (e: Event) => {
-      const t = (e.target as Element | null)?.closest?.(".term");
+      const target = e.target as Element | null;
+      // Pointer over the tooltip itself keeps it open.
+      if (target?.closest?.(".term-tooltip")) {
+        cancelHide();
+        return;
+      }
+      const t = target?.closest?.(".term");
       if (t instanceof HTMLElement) show(t);
     };
-    const onOut = (e: Event) => {
-      const t = (e.target as Element | null)?.closest?.(".term");
-      if (t) scheduleHide();
+    const onOut = (e: MouseEvent) => {
+      const t = (e.target as Element | null)?.closest?.(".term, .term-tooltip");
+      if (!t) return;
+      // Moving between the term and its tooltip is not a leave.
+      const to = e.relatedTarget as Element | null;
+      if (to?.closest?.(".term-tooltip") || (to?.closest?.(".term") && to.closest(".term") === anchorRef.current)) {
+        return;
+      }
+      scheduleHide();
     };
     const onFocusIn = (e: Event) => {
       const t = (e.target as Element | null)?.closest?.(".term");
@@ -74,19 +97,25 @@ export default function TermTooltip() {
       else setTip(null);
     };
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") setTip(null);
+      if (e.key === "Escape") {
+        anchorRef.current = null;
+        setTip(null);
+      }
     };
-    const onScroll = () => setTip(null);
+    const onScroll = () => {
+      anchorRef.current = null;
+      setTip(null);
+    };
 
     document.addEventListener("mouseover", onOver);
-    document.addEventListener("mouseout", onOut);
+    document.addEventListener("mouseout", onOut as EventListener);
     document.addEventListener("focusin", onFocusIn);
     document.addEventListener("keydown", onKey);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       cancelHide();
       document.removeEventListener("mouseover", onOver);
-      document.removeEventListener("mouseout", onOut);
+      document.removeEventListener("mouseout", onOut as EventListener);
       document.removeEventListener("focusin", onFocusIn);
       document.removeEventListener("keydown", onKey);
       window.removeEventListener("scroll", onScroll);
@@ -110,7 +139,10 @@ export default function TermTooltip() {
       onMouseEnter={() => {
         if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
       }}
-      onMouseLeave={() => setTip(null)}
+      onMouseLeave={() => {
+        anchorRef.current = null;
+        setTip(null);
+      }}
     >
       <div className="term-tooltip-title">{tip.term}</div>
       <div
