@@ -3,7 +3,7 @@
 import { useId, useRef, useState } from "react";
 import Link from "next/link";
 import type { Question } from "@/content/types";
-import { DIFF_COLOR, DIFF_LABEL, gradeNumeric } from "@/lib/quiz";
+import { DIFF_COLOR, DIFF_LABEL, diagnoseNumeric, gradeNumeric, questionHint } from "@/lib/quiz";
 import HtmlContent from "@/components/HtmlContent";
 
 /**
@@ -43,6 +43,7 @@ export default function SectionCheck({
   const [text, setText] = useState("");
   const [result, setResult] = useState<boolean | null>(null);
   const [blank, setBlank] = useState(false);
+  const [hintShown, setHintShown] = useState(false);
   const verdictRef = useRef<HTMLParagraphElement>(null);
 
   const answered = result !== null;
@@ -151,12 +152,18 @@ export default function SectionCheck({
                       aria-disabled={answered || undefined}
                       onClick={() => pick(i)}
                     >
-                      <HtmlContent html={c} className="inline [&_p]:m-0 [&_p]:inline" />
+                      <HtmlContent html={c} className="inline [&_p]:m-0 [&_p]:inline" glossary={false} />
                       {answered && isAnswer && (
                         <span className="answer-option-note">correct answer</span>
                       )}
                       {answered && isPick && !isAnswer && (
                         <span className="answer-option-note">your pick</span>
+                      )}
+                      {answered && isPick && !isAnswer && question.whyWrong?.[i]?.trim() && (
+                        <span className="mt-1 block text-[0.8rem] font-normal" data-why-wrong>
+                          <span className="font-semibold">Why this is wrong: </span>
+                          <HtmlContent html={question.whyWrong[i] ?? ""} className="inline-content" />
+                        </span>
                       )}
                     </button>
                   </li>
@@ -202,6 +209,31 @@ export default function SectionCheck({
             </p>
           )}
 
+          {!answered && (() => {
+            const hint = questionHint(question);
+            if (!hint) return null;
+            return hintShown ? (
+              <div className="soft-callout mt-3 text-sm" data-hint>
+                <span className="mono-key mr-2">Hint</span>
+                <HtmlContent html={hint.html} className="inline-content" glossary={false} />
+                {hint.derived && (
+                  <span className="muted block pt-1 text-xs">
+                    From the first line of the worked solution.
+                  </span>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                data-show-hint
+                onClick={() => setHintShown(true)}
+                className="link-quiet mt-3 text-sm font-medium"
+              >
+                Show hint
+              </button>
+            );
+          })()}
+
           {answered && (
             <div className="mt-4">
               <p
@@ -220,6 +252,15 @@ export default function SectionCheck({
                     {question.unit ? ` ${question.unit}` : ""}
                   </span>
                 )}
+                {!result && question.type === "numeric" && (() => {
+                  const hint = diagnoseNumeric(text, question.answer, question.tolerance ?? 0.03);
+                  return hint ? (
+                    <span className="basis-full text-sm font-normal" data-numeric-hint>
+                      <span className="font-semibold">Where you likely went wrong: </span>
+                      {hint}
+                    </span>
+                  ) : null;
+                })()}
               </p>
               <HtmlContent
                 html={question.explanation}

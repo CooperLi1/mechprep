@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import PrimaryNav from "@/components/PrimaryNav";
 import CommandPalette from "@/components/CommandPalette";
+import TermTooltip from "@/components/TermTooltip";
 import "./globals.css";
+
+// The design system is set in Geist; without loading it the whole app silently
+// falls back to system fonts.
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 // Runs before first paint so a stored dark preference never flashes light.
 const THEME_INIT = `try{var t=localStorage.getItem('mechprep-theme');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}`;
@@ -32,7 +39,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`h-full antialiased ${geist.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
       </head>
@@ -64,10 +75,12 @@ export default function RootLayout({
               <Link href="/test" className="hover:text-accent-dark">Custom test</Link>
               <Link href="/qna" className="hover:text-accent-dark">Interview Q&amp;A</Link>
               <Link href="/reference" className="hover:text-accent-dark">Formula sheet</Link>
+              <Link href="/glossary" className="hover:text-accent-dark">Glossary</Link>
               <Link href="/figures" className="hover:text-accent-dark">Figure QA</Link>
             </span>
           </div>
         </footer>
+        <TermTooltip />
       </body>
     </html>
   );

@@ -257,3 +257,15 @@ item is padding; cut to two, or extend to four when four genuinely exist).
 cos 60° gives 20 N·m. That component pushes the socket onto the fastener and
 makes no torque at all" says everything that "The two traps are both worth
 naming…" was building up to.
+
+## Optional coaching fields (added 2026-08)
+
+- `hint` (any question, HTML): a nudge shown on request in practice mode and
+  lesson checks. Point at the governing principle or first step; never state
+  the answer. When absent the UI falls back to the first sentence of
+  `explanation` (skipped automatically if that sentence would leak the verdict).
+- `whyWrong` (MC only, `string[]` index-aligned with `choices`, HTML): why each
+  wrong choice is wrong, shown when the user picks it. Use `""` to skip a
+  choice; the entry at `answer` is ignored. Write it as the diagnosis of the
+  specific mistake that leads to that choice, not a restatement of the right
+  answer.
